@@ -10,30 +10,112 @@ import * as core from '@actions/core'
 import * as main from '../src/main'
 
 // Mock the GitHub Actions core library
-const debugMock = jest.spyOn(core, 'debug')
 const getInputMock = jest.spyOn(core, 'getInput')
+const getBooleanInputMock = jest.spyOn(core, 'getBooleanInput')
 const setFailedMock = jest.spyOn(core, 'setFailed')
 const setOutputMock = jest.spyOn(core, 'setOutput')
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run')
 
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
-
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('sets the time output', async () => {
+  it('properly returns information from regular package', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
-        case 'milliseconds':
-          return '500'
+        case 'package_path':
+          return 'qpm.json'
         default:
           return ''
+      }
+    })
+
+    getBooleanInputMock.mockImplementation((name: string): boolean => {
+      switch (name) {
+        case 'shared':
+          return false
+        default:
+          return false
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(setFailedMock).not.toHaveBeenCalled()
+
+    // verify outputs to have worked
+    expect(setOutputMock).toHaveBeenNthCalledWith(1, 'name', 'FakePackage')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(2, 'id', 'fakepackage')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(3, 'version', '1.0.0')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(
+      4,
+      'url',
+      'https://github.com/RedBrumbler/qpm-info'
+    )
+  })
+
+  it('properly returns information from shared package', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'package_path':
+          return 'qpm.shared.json'
+        default:
+          return ''
+      }
+    })
+
+    getBooleanInputMock.mockImplementation((name: string): boolean => {
+      switch (name) {
+        case 'shared':
+          return true
+        default:
+          return false
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(setFailedMock).not.toHaveBeenCalled()
+
+    // verify outputs to have worked
+    expect(setOutputMock).toHaveBeenNthCalledWith(1, 'name', 'FakePackage')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(2, 'id', 'fakepackage')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(3, 'version', '1.0.0')
+
+    expect(setOutputMock).toHaveBeenNthCalledWith(
+      4,
+      'url',
+      'https://github.com/RedBrumbler/qpm-info'
+    )
+  })
+
+  it('fails to read invalid path', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'package_path':
+          return 'this path does not exist'
+        default:
+          return ''
+      }
+    })
+
+    getBooleanInputMock.mockImplementation((name: string): boolean => {
+      switch (name) {
+        default:
+          return false
       }
     })
 
@@ -41,30 +123,26 @@ describe('action', () => {
     expect(runMock).toHaveReturned()
 
     // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "can't read package")
   })
 
-  it('sets a failed status', async () => {
+  it('fails to read a regular package as shared', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
+        case 'package_path':
+          return 'qpm.json'
         default:
           return ''
+      }
+    })
+
+    getBooleanInputMock.mockImplementation((name: string): boolean => {
+      switch (name) {
+        case 'shared':
+          return true
+        default:
+          return false
       }
     })
 
@@ -74,7 +152,37 @@ describe('action', () => {
     // Verify that all of the core library functions were called correctly
     expect(setFailedMock).toHaveBeenNthCalledWith(
       1,
-      'milliseconds not a number'
+      'package was said to be shared, but is not'
+    )
+  })
+
+  it('fails to read a shared package as regular', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'package_path':
+          return 'qpm.shared.json'
+        default:
+          return ''
+      }
+    })
+
+    getBooleanInputMock.mockImplementation((name: string): boolean => {
+      switch (name) {
+        case 'shared':
+          return false
+        default:
+          return false
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    // Verify that all of the core library functions were called correctly
+    expect(setFailedMock).toHaveBeenNthCalledWith(
+      1,
+      'package was said to not be shared, but it is'
     )
   })
 })

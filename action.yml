@@ -1,18 +1,26 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Read QPM info"
+description: "Reads the qpm.json info into outputs for you to use in your github actions"
+author: "RedBrumbler"
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  package_path:
+    required: false
+    description: "Path to the package you want to read"
+    default: "qpm.json"
+  shared:
+    required: false
+    description: "Whether the package path provided is a shared json instead"
+    default: 'false'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  name:
+    description: "package name"
+  id:
+    description: "package id"
+  version:
+    description: "package id"
+  url:
+    description: "package url"
 
 runs:
   using: node20

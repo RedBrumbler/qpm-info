@@ -1,0 +1,13 @@
+{
+  "sharedDir": "shared",
+  "dependenciesDir": "extern",
+  "info": {
+    "name": "FakePackage",
+    "id": "fakepackage",
+    "version": "1.0.0",
+    "url": "https://github.com/RedBrumbler/qpm-info",
+    "additionalData": {}
+  },
+  "dependencies": [],
+  "workspace": null
+}

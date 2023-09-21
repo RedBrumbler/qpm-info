@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - 'releases/*'
+      - 'release/*'
 
 jobs:
   test-typescript:
@@ -52,9 +52,11 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
-        with:
-          milliseconds: 1000
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: |
+          echo "Name: ${{ steps.test-action.outputs.name }}"
+          echo "Id: ${{ steps.test-action.outputs.id }}"
+          echo "Url: ${{ steps.test-action.outputs.url }}"
+          echo "Version: ${{ steps.test-action.outputs.version }}"
