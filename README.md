@@ -31,8 +31,8 @@ An example of how to access these:
 ```yaml
 - name: Print info
   run: |
-    echo "Name: ${{ steps.qpm-info.outputs.name }}
-    echo "Id: ${{ steps.qpm-info.outputs.id }}
-    echo "Url: ${{ steps.qpm-info.outputs.url }}
-    echo "Version: ${{ steps.qpm-info.outputs.version }}
+    echo "Name: ${{ steps.qpm-info.outputs.name }}"
+    echo "Id: ${{ steps.qpm-info.outputs.id }}"
+    echo "Url: ${{ steps.qpm-info.outputs.url }}"
+    echo "Version: ${{ steps.qpm-info.outputs.version }}"
 ```
