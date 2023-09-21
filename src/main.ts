@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import * as fs from 'fs'
 
 /**
  * The main function for the action.
@@ -7,18 +7,30 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const package_path = core.getInput('package_path')
+    const shared = core.getBooleanInput('shared')
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    console.debug(`checking whether we can read '${package_path}'`)
+    try {
+      fs.accessSync(package_path, fs.constants.R_OK)
+    } catch (error) {
+      throw new Error("can't read package")
+    }
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const content = JSON.parse(String(fs.readFileSync(package_path)))
+    const hasConfig = Object.prototype.hasOwnProperty.call(content, 'config')
+    if (!shared && hasConfig) {
+      throw new Error('package was said to not be shared, but it is')
+    } else if (shared && !hasConfig) {
+      throw new Error('package was said to be shared, but is not')
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const info = shared ? content.config.info : content.info
+
+    core.setOutput('name', info.name)
+    core.setOutput('id', info.id)
+    core.setOutput('version', info.version)
+    core.setOutput('url', info.url)
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
