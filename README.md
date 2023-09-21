@@ -30,7 +30,7 @@ An example of how to access these:
 
 ```yaml
 - name: Print info
-  runs: |
+  run: |
     echo "Name: ${{ steps.qpm-info.outputs.name }}
     echo "Id: ${{ steps.qpm-info.outputs.id }}
     echo "Url: ${{ steps.qpm-info.outputs.url }}
