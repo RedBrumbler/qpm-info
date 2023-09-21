@@ -56,7 +56,7 @@ jobs:
       - name: Print Output
         id: output
         run: |
-          echo "Name: ${{ steps.qpm-info.outputs.name }}"
-          echo "Id: ${{ steps.qpm-info.outputs.id }}"
-          echo "Url: ${{ steps.qpm-info.outputs.url }}"
-          echo "Version: ${{ steps.qpm-info.outputs.version }}"
+          echo "Name: ${{ steps.test-action.outputs.name }}"
+          echo "Id: ${{ steps.test-action.outputs.id }}"
+          echo "Url: ${{ steps.test-action.outputs.url }}"
+          echo "Version: ${{ steps.test-action.outputs.version }}"
